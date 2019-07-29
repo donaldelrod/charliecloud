@@ -112,18 +112,56 @@ void tmpfs_mount(char *dst, char *newroot, char *data);
 
 /** Functions **/
 
+/**
+ * Hoping that this function will properly solve the
+ * problem of mounting user specified folders into the
+ * container images by recursively creating the path
+ * that the mounts will be mounted to
+ */
+// void create_path(char* full_path) {
+//    printf("trying to create dir %s\n", full_path);
+//    char command[50];
+//    sprintf(command, "id && mkdir -p %s", full_path);
+//    if (system(command) != 0) {
+//       printf("failed to create the directory %s\n", full_path);
+//    } else printf("successfully created the directory %s\n", full_path);
+//    // printf("trying to create dir %s\n", full_path);
+//    // //base case, returns if done
+//    // if (path_exists(full_path)) {
+//    //    printf("reached base case\n");
+//    //    return;
+//    // }
+//    // //if the parent dir exists, make this dir
+//    // else if (path_exists(dirname(full_path)))
+//    //    printf("trying to create dir %s\n", dirname(full_path));
+//    //    Z_(mkdir(full_path, 0755));
+//    // //otherwise recursively call this function
+//    // else {
+//    //    printf("trying to create dir %s\n", dirname(full_path));
+//    //    create_path(dirname(full_path));
+//    //    printf("trying to create dir %s\n", full_path);
+//    //    Z_(mkdir(full_path, 0755));
+//    // }
+// }
+
 /* Bind-mount the given path into the container image. */
 void bind_mount(char *src, char *dst, char *newroot,
                 enum bind_dep dep, unsigned long flags)
 {
    char *dst_full = cat(newroot, dst);
-
+   //trying to see what all is being mounted
+   printf("bind mounting: %s -> %s\n", src, dst_full);
    if (!path_exists(src)) {
+      printf("path on host doesn\'t exist: %s\n", src);
       Te (dep == BD_OPTIONAL, "can't bind: not found: %s", src);
       return;
    }
 
    if (!path_exists(dst_full)) {
+      printf("path on container doesn\'t exist: %s\n", dst_full);
+      //need to make a path here, hopefully this isnt a bitch
+      //create_path(dst_full);
+      
       Te (dep == BD_OPTIONAL, "can't bind: not found: %s", dst_full);
       return;
    }
@@ -152,6 +190,9 @@ char *cat(char *a, char *b)
 /* Set up new namespaces or join existing namespaces. */
 void containerize(struct container *c)
 {
+   //here i create extra directories in the container if the user defined mountpoints
+   // if user specified binds exist, create the directories needed so they can be bind mounted
+   bind_mounts(c->binds, c->newroot, BD_REQUIRED, 0);
    if (c->join_pid) {
       join_namespaces(c->join_pid);
       return;
