@@ -1,0 +1,15 @@
+#!/bin/bash
+scriptPath="/software/charliecloud/0.9.8-slurm/bin"
+pool="containers"
+extension=".sqfs"
+tar_extension=".tar.gz"
+
+#docker does not parse strings like a system call does, so "centos ; rm -rf /" or a similar command would fail. Using &&, one can only reach the rm command if giving a valid docker image name. Ensure that available docker images are verified so that there isn't a container named "/" or something
+
+ch-docker2tar "$1" "$scriptPath" &&
+ch-tar2dir "$scriptPath/$1$tar_extension" "$scriptPath" &&
+mksquashfs "$scriptPath/$1" "$scriptPath/$1$extension" &&
+cd "$scriptPath" &&
+python2 ceph-put.py "$pool" "$1$extension" &&
+rm "-rf" "$1" "$1$tar_extension" "$1$extension" &&
+cd -
