@@ -1,0 +1,23 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+        puts stderr " "
+        puts stderr "This module loads the charliecloud utility"
+        puts stderr "\nVersion 0.9.11b\n"
+
+}
+module-whatis "Name: charliecloud"
+module-whatis "Version: 0.9.8-slurm-plugin"
+module-whatis "Category: runtime"
+module-whatis "Description: Lightweight user-defined software stacks for high-performance computing"
+module-whatis "** This is the experimental slurm plugin, crashes may occur **"
+module-whatis "URL https://hpc.github.io/charliecloud/"
+
+set     version             0.9.8-slurm
+
+prepend-path    PATH                /software/charliecloud/0.9.8-slurm/bin
+prepend-path    MANPATH             /software/charliecloud/0.9.8-slurm/man
+
+setenv          CHARLIECLOUD_DIR        /software/charliecloud/0.9.8-slurm
+setenv          CHARLIECLOUD_BIN        /software/charliecloud/0.9.8-slurm/bin
